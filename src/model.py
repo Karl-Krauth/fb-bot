@@ -21,6 +21,7 @@ class Reminder(ndb.Model):
 	        )
 	    r.put()
 
+	@classmethod
     def get_and_update_current_reminders(cls):
         now = datetime.datetime.utcnow()
         reminders = cls.query().filter(cls.reminder_time < now)
