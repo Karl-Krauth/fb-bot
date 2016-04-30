@@ -15,8 +15,13 @@
 # limitations under the License.
 #
 import webapp2
-
+from google.appengine.api import urlfetch
+import urllib
+import urllib2
 import logger
+import json
+import credentials
+import model
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -28,10 +33,10 @@ class MainHandler(webapp2.RequestHandler):
     def post(self):
         logger.log(self.request.body)
 
-
-class DailyHandler(webapp2.RequestHandler):
+class CronHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('aye bb girl let me clap dem cheeks') 
+        default_post_request()
+        #logger.log(model.Reminder.get_and_update_current_reminders())
 
 class LogHandler(webapp2.RequestHandler):
     def get(self):
@@ -41,12 +46,20 @@ class LogHandler(webapp2.RequestHandler):
             logger.log(self.request.get('msg'))
 
         self.response.write(logger.dump_log())
+        
+def default_post_request(): 
+    url="https://graph.facebook.com/v2.6/me/messages?access_token=" + credentials.access_token
+    data = json.dumps({"recipient":{"id":credentials.sender_id}, "message":{"text":credentials.message}})
+    req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
+    response = urllib2.urlopen(req)
+    print response.read()
 
 app = webapp2.WSGIApplication([
     ('/webhook', MainHandler),
     ('/log', LogHandler),
-    ('/daily', DailyHandler),
+    ('/cron', CronHandler),
 ], debug=True)
 
 if __name__ == '__main__':
     run_wsgi_app(application)	
+
