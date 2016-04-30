@@ -18,8 +18,11 @@ import webapp2
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Hello world!')
+        if self.request.get('hub.verify_token') == 'fiend':
+            self.response.write(self.request.get('hub.challenge'))
+        else:
+            self.response.write('Error, wrong validation token.')
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/webhook', MainHandler),
 ], debug=True)
