@@ -34,6 +34,7 @@ def parse_msg(j):
         return info
     else:
         print "no match!"
+        return None
 
 # Takes in json from Messenger API
 # returns user ID of sender
