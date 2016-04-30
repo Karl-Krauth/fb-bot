@@ -21,6 +21,7 @@ import urllib2
 import logger
 import json
 import credentials
+import model
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -32,10 +33,10 @@ class MainHandler(webapp2.RequestHandler):
     def post(self):
         logger.log(self.request.body)
 
-
-class DailyHandler(webapp2.RequestHandler):
-    def get(self): 
+class CronHandler(webapp2.RequestHandler):
+    def get(self):
         default_post_request()
+        #logger.log(model.Reminder.get_and_update_current_reminders())
 
 class LogHandler(webapp2.RequestHandler):
     def get(self):
@@ -56,7 +57,7 @@ def default_post_request():
 app = webapp2.WSGIApplication([
     ('/webhook', MainHandler),
     ('/log', LogHandler),
-    ('/daily', DailyHandler),
+    ('/cron', CronHandler),
 ], debug=True)
 
 if __name__ == '__main__':
