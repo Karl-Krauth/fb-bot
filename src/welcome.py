@@ -18,7 +18,7 @@ def run_welcome_message():
                   {
                     "title":"Let's get started. Copy & paste the text:",
                     "image_url":"http://puu.sh/oBuqA/29b203a8b7.png",
-                    "subtitle":"Remind John Doe on 12 April 2010 11:14 of paying me back for lunch"
+                    "subtitle":"Remind John Doe on 12 April 2010 11:14 to pay me back for lunch"
                   }
                 ]
               }
