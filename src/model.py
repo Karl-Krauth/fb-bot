@@ -6,18 +6,19 @@ class Reminder(ndb.Model):
     # Possible values include unique, daily, weekly, monthly.
     # reminder_type = ndb.StringProperty()
     # Value is in UTC.
-    recurring = ndb.IntegerProperty(default=0)
+    recurring_days = ndb.IntegerProperty(default=0)
     reminder_time = ndb.DateTimeProperty()
     text = ndb.StringProperty(indexed=False)
     source_userid = ndb.IntegerProperty()
     dest_userid = ndb.IntegerProperty() 
 
     @classmethod
-    def add_reminder(cls, source_userid, dest_userid, text, reminder_time):
+    def add_reminder(cls, source_userid, dest_userid, text, reminder_time, recurring_days):
         r = cls(source_userid=source_userid,
             dest_userid=dest_userid,
             text=text,
-            reminder_time=reminder_time)
+            reminder_time=reminder_time,
+            recurring_days=recurring_days)
         r.put()
 
     @classmethod
@@ -29,10 +30,10 @@ class Reminder(ndb.Model):
     @classmethod
     def update_current_reminders(cls, reminders):
         for reminder in reminders:
-            if reminder.recurring == 0:
+            if reminder.recurring_days == 0:
                 reminder.key.delete()
             else:
-                reminder.reminder_time + datetime.timedelta(days=reminder.recurring)
+                reminder.reminder_time + datetime.timedelta(days=reminder.recurring_days)
 
 # keeping a database of userid and their names
 class Users(ndb.Model):

@@ -8,6 +8,7 @@ INFO_DEST_FIRST_NAME = "dest_first_name"
 INFO_DEST_LAST_NAME = "dest_last_name"
 INFO_TEXT = "text"
 INFO_TIME = "time"
+INFO_RECURRING_DAYS = "recurring_days"
 
 # Parses message string
 # returns the remindee, date and text of reminder
@@ -17,8 +18,11 @@ def parse_msg(j):
     p1 = re.compile(r'(?i)remind ([^ ]+) ([^ ]+) on (.+) to (.+)')
     # "Remind <userid> in <12 minutes> to <text>"
     p2 = re.compile(r'(?i)remind ([^ ]+) ([^ ]+) in ([0-9]+) (seconds|minutes|hours) to (.+)')
+    # "Remind <userid> every <12> days to <text>"
+    p3 = re.compile(r'(?i)remind ([^ ]+) ([^ ]+) every ([0-9]+) days to (.+)')
     m1 = p1.match(string)
     m2 = p2.match(string)
+    m3 = p3.match(string)
 
     info = dict()
 
@@ -29,6 +33,7 @@ def parse_msg(j):
         info[INFO_DEST_LAST_NAME] = mg[1]
         info[INFO_TEXT] = mg[3]
         info[INFO_SOURCE_USER_ID] = get_source_user_id(j)
+        info[INFO_RECURRING_DAYS] = 0
         try:
             info[INFO_TIME] = datetime.strptime(mg[2], "%d %B %Y %H:%M") # <23 May 2016 14:03>
         except:
@@ -43,6 +48,7 @@ def parse_msg(j):
         info[INFO_TEXT] = mg[4]
         info[INFO_SOURCE_USER_ID] = get_source_user_id(j)
         info[INFO_TIME] = datetime.now()
+        info[INFO_RECURRING_DAYS] = 0
         amount = int(mg[2])
         if mg[3] == "seconds":
             info[INFO_TIME] += timedelta(seconds=amount)
@@ -52,6 +58,17 @@ def parse_msg(j):
             info[INFO_TIME] += timedelta(hours=amount)
 
         return info
+    elif m3:
+        mg = m3.groups()
+
+        info[INFO_DEST_FIRST_NAME] = mg[0]
+        info[INFO_DEST_LAST_NAME] = mg[1]
+        info[INFO_TEXT] = mg[3]
+        info[INFO_SOURCE_USER_ID] = get_source_user_id(j)
+        info[INFO_TIME] = datetime.now() + timedelta(hours=int(mg[2]))
+        info[INFO_RECURRING_DAYS] = int(mg[2])
+        return info
+
     else:
         print "no match!"
         return None
