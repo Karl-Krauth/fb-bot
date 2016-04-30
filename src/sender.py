@@ -36,7 +36,7 @@ def send_reminder(dest_userid, source_userid, text):
             "template_type":"generic",
             "elements":[
               {
-                "title":"Hi %s, you have a reminder!" % (dest_user.first_name),
+                "title":"Hi %s, you have a reminder!" % (dest_user.first_name.title()),
                 "image_url":"http://puu.sh/oB7DO/530537c5d2.png",
                 "subtitle":"%s would like to remind you to %s" % (source_user.first_name, text),
               }
