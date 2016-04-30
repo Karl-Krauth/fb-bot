@@ -21,6 +21,7 @@ import model
 import sender
 import parse
 import credentials
+import welcome
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -64,12 +65,13 @@ class MainHandler(webapp2.RequestHandler):
         dest_user_id = dest_user_id.user_id
 
         model.Reminder.add_reminder(source_user_id, dest_user_id,
-                                    msg_data[parse.INFO_TEXT], msg_data[parse.INFO_TIME])
+                                    msg_data[parse.INFO_TEXT], msg_data[parse.INFO_TIME], msg_data[parse.INFO_RECURRING_DAYS])
         sender.send_chat_message(source_user_id, "Ok! I'll be sure to remind %s %s."
                                  % (msg_data[parse.INFO_DEST_FIRST_NAME], msg_data[parse.INFO_DEST_LAST_NAME]) )
 
 class CronHandler(webapp2.RequestHandler):
     def get(self):
+        welcome.run_welcome_message()
         reminders = model.Reminder.get_current_reminders()
         for reminder in reminders:
             sender.send_reminder(reminder.dest_userid,
