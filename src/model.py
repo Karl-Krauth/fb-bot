@@ -9,6 +9,16 @@ class Reminder(ndb.Model):
     source_userid = ndb.StringProperty()
     dest_userid = ndb.StringProperty() 
 
+    @classmethod
+    def add_reminder(cls, source_userid, dest_userid, text, reminder_time):
+    	r = cls(
+	        source_userid=source_userid,
+	        dest_userid=dest_userid,
+	        text=text,
+	        reminder_time=reminder_time,
+	        )
+	    r.put()
+
 class Log(ndb.Model):
     log = ndb.StringProperty()
 
