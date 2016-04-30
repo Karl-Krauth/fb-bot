@@ -45,7 +45,7 @@ def send_reminder(dest_userid, group_name, source_userid, text):
               {
                 "title":"Hi %s, you have a reminder!" % (dest_user.first_name.title()),
                 "image_url":"http://puu.sh/oB7DO/530537c5d2.png",
-                "subtitle":"%s would like to remind you to %s" % (source_user.first_name, text),
+                "subtitle":"%s would like to remind you to %s" % (source_user.first_name.title(), text),
               }
             ]
           }
