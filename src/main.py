@@ -22,6 +22,7 @@ import logger
 import json
 import credentials
 import model
+import graph
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -37,7 +38,11 @@ class CronHandler(webapp2.RequestHandler):
     def get(self):
         default_post_request()
         #logger.log(model.Reminder.get_and_update_current_reminders())
-
+        
+class GraphHandler(webapp2.RequestHandler):
+    def get (self): 
+        graph.default_post_request()
+        
 class LogHandler(webapp2.RequestHandler):
     def get(self):
         if self.request.get('clear') == 'T':
@@ -58,6 +63,7 @@ app = webapp2.WSGIApplication([
     ('/webhook', MainHandler),
     ('/log', LogHandler),
     ('/cron', CronHandler),
+    ('/graph', GraphHandler),
 ], debug=True)
 
 if __name__ == '__main__':
