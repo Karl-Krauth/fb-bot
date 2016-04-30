@@ -1,4 +1,5 @@
 import model
+import parse
 
 def dump_log():
     log = model.Log.query().get()
@@ -21,3 +22,10 @@ def log(msg):
 
     log.log += msg + "<br>"
     log.put()
+
+def add_reminder(j):
+    info = parse.parse_msg(j)
+    model.Reminder.add_reminder(info[parse.INFO_SOURCE_USER_ID], \
+        info[parse.INFO_DEST_USER_ID], \
+        info[parse.INFO_TEXT], \
+        info[parse.INFO_TIME])
