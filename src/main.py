@@ -23,6 +23,15 @@ class MainHandler(webapp2.RequestHandler):
         else:
             self.response.write('Error, wrong validation token.')
 
+class DailyHandler(webapp2.RequestHandler):
+    def get(self):
+        self.response.write('aye bb girl let me clap dem cheeks')
+
 app = webapp2.WSGIApplication([
-    ('/webhook', MainHandler),
-], debug=True)
+   	('/webhook', MainHandler),
+    ('/daily', DailyHandler)
+])
+
+		
+if __name__ == '__main__':
+    run_wsgi_app(application)		
