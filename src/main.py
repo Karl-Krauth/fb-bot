@@ -24,7 +24,8 @@ class MainHandler(webapp2.RequestHandler):
             self.response.write(self.request.get('hub.challenge'))
         else:
             self.response.write('Error, wrong validation token.')
-	def post(self):
+ 
+    def post(self):
         logger.log(self.request.body)
 
 class DailyHandler(webapp2.RequestHandler):
@@ -33,12 +34,17 @@ class DailyHandler(webapp2.RequestHandler):
 
 class LogHandler(webapp2.RequestHandler):
     def get(self):
+        if self.request.get('clear') == 'T':
+            logger.clear_log()
+        if self.request.get('msg'):
+            logger.log(self.request.get('msg'))
+
         self.response.write(logger.dump_log())
 
 app = webapp2.WSGIApplication([
     ('/webhook', MainHandler),
     ('/log', LogHandler),
-	('/daily', DailyHandler)
+    ('/daily', DailyHandler),
 ], debug=True)
 
 if __name__ == '__main__':
