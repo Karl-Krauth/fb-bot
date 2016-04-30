@@ -16,22 +16,30 @@
 #
 import webapp2
 
+import logger
+
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         if self.request.get('hub.verify_token') == 'fiend':
             self.response.write(self.request.get('hub.challenge'))
         else:
             self.response.write('Error, wrong validation token.')
+	def post(self):
+        logger.log(self.request.body)
 
 class DailyHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('aye bb girl let me clap dem cheeks')
+        self.response.write('aye bb girl let me clap dem cheeks') 
+
+class LogHandler(webapp2.RequestHandler):
+    def get(self):
+        self.response.write(logger.dump_log())
 
 app = webapp2.WSGIApplication([
-   	('/webhook', MainHandler),
-    ('/daily', DailyHandler)
-])
+    ('/webhook', MainHandler),
+    ('/log', LogHandler),
+	('/daily', DailyHandler)
+], debug=True)
 
-		
 if __name__ == '__main__':
-    run_wsgi_app(application)		
+    run_wsgi_app(application)	
