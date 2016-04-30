@@ -7,9 +7,9 @@ class Reminder(ndb.Model):
     # reminder_type = ndb.StringProperty()
     # Value is in UTC.
     reminder_time = ndb.DateTimeProperty()
-    text = ndb.StringProperty()
-    source_userid = ndb.StringProperty()
-    dest_userid = ndb.StringProperty() 
+    text = ndb.StringProperty(indexed=False)
+    source_userid = ndb.IntegerProperty()
+    dest_userid = ndb.IntegerProperty() 
 
     @classmethod
     def add_reminder(cls, source_userid, dest_userid, text, reminder_time):
@@ -26,9 +26,9 @@ class Reminder(ndb.Model):
         for reminder in reminders:
             # TODO(karl): instead of deleting reminders we might want
             # to renew them.
-            reminder.key().delete()
+            reminder.key.delete()
         return reminders
 
 class Log(ndb.Model):
-    log = ndb.StringProperty()
+    log = ndb.StringProperty(indexed=False)
 

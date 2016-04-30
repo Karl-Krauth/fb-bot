@@ -16,12 +16,10 @@
 #
 import webapp2
 from google.appengine.api import urlfetch
-import urllib
-import urllib2
 import logger
-import json
-import credentials
 import model
+import sender
+import parse
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -32,11 +30,28 @@ class MainHandler(webapp2.RequestHandler):
  
     def post(self):
         logger.log(self.request.body)
+        sender = parse.get_sender_user_id(self.request.body)
+        if sender is None:
+            # TODO: send an error response.
+            logger.log("Invalid sender")
+            return
+        text_data = parse.parse_text(self.request.body)
+        if text_data is None:
+            # TODO: send an error response.
+            logger.log("invalid text data")
+            return
+        model.Reminder.add_reminder(sender, text_data["remindee"],
+                                    text_data["text"], text_data["date"])
 
 class CronHandler(webapp2.RequestHandler):
     def get(self):
-        default_post_request()
-        #logger.log(model.Reminder.get_and_update_current_reminders())
+        reminders = model.Reminder.get_and_update_current_reminders()
+        if not reminders:
+            logger.log("fiended")
+        for reminder in reminders:
+            sender.send_reminder(reminder.dest_userid,
+                                 reminder.source_userid,
+                                 reminder.text)
 
 class LogHandler(webapp2.RequestHandler):
     def get(self):
@@ -46,13 +61,6 @@ class LogHandler(webapp2.RequestHandler):
             logger.log(self.request.get('msg'))
 
         self.response.write(logger.dump_log())
-        
-def default_post_request(): 
-    url="https://graph.facebook.com/v2.6/me/messages?access_token=" + credentials.access_token
-    data = json.dumps({"recipient":{"id":credentials.sender_id}, "message":{"text":credentials.message}})
-    req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
-    response = urllib2.urlopen(req)
-    print response.read()
 
 app = webapp2.WSGIApplication([
     ('/webhook', MainHandler),
