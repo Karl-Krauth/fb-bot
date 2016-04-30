@@ -49,7 +49,7 @@ class MainHandler(webapp2.RequestHandler):
         # TODO handle multiple matches to name string
         dest_user_id = model.Users.find_by_name(msg_data[parse.INFO_DEST_FIRST_NAME], msg_data[parse.INFO_DEST_LAST_NAME])
         if not dest_user_id:
-            sender.send_chat_message(source_user_id, "Oh no! The user first name doesn't exist.")
+            sender.send_chat_message(source_user_id, "Oh no! The user's name doesn't exist.")
             return
         dest_user_id = dest_user_id.user_id
 
@@ -63,14 +63,12 @@ class CronHandler(webapp2.RequestHandler):
         welcome.run_welcome_message()
         reminders = model.Reminder.get_current_reminders()
         for reminder in reminders:
-            try:
-                sender.send_reminder(reminder.dest_userid,
-                                     reminder.source_userid,
-                                     reminder.text)
-            except:
-                logger.log("Failed to message %d" % reminder.dest_userid)
+            sender.send_reminder(reminder.dest_userid,
+                                 reminder.source_userid,
+                                 reminder.text)
         #sender.send_reminder(938118842973491,938118842973491,"heydude")  
         model.Reminder.update_current_reminders(reminders)
+        self.response.write("success!")
 
 class LogHandler(webapp2.RequestHandler):
     def get(self):

@@ -4,6 +4,7 @@ import json
 
 import credentials
 import logger
+import model
 
 # calls Facebook API to get first & second name by user id
 def get_user_info(id):
@@ -16,11 +17,14 @@ def get_user_info(id):
 
 def send_reminder(dest_userid, source_userid, text):
     logger.log("%d %d %s" % (source_userid, dest_userid, text))
-    dest_first_name = model.Users.get_by_id(dest_userid)
-    if dest_first_name:
-        dest_first_name = dest_first_name.first_name
-    else:
-        dest_first_name = dest_userid
+    dest_user = model.Users.get_by_id(dest_userid)
+    if dest_user is None:
+        return None
+
+    source_user = model.Users.get_by_id(source_userid)
+    if source_user is None:
+        return None
+
     url = ("https://graph.facebook.com/v2.6/me/messages?access_token=" +
            credentials.access_token)
     data = json.dumps({
@@ -32,9 +36,9 @@ def send_reminder(dest_userid, source_userid, text):
             "template_type":"generic",
             "elements":[
               {
-                "title":"Hi %d, you have a reminder!" % (dest_first_name),
+                "title":"Hi %s, you have a reminder!" % (dest_user.first_name),
                 "image_url":"http://puu.sh/oB7DO/530537c5d2.png",
-                "subtitle":"%d would like to remind you that %s" % (source_userid, text),
+                "subtitle":"%s would like to remind you to %s" % (source_user.first_name, text),
               }
             ]
           }
