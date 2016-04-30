@@ -30,7 +30,7 @@ class MainHandler(webapp2.RequestHandler):
  
     def post(self):
         logger.log(self.request.body)
-        sender = parse.get_sender_user_id(self.request.body)
+        sender = parse.get_source_user_id(self.request.body)
         if sender is None:
             # TODO: send an error response.
             logger.log("Invalid sender")
@@ -45,14 +45,14 @@ class MainHandler(webapp2.RequestHandler):
 
 class CronHandler(webapp2.RequestHandler):
     def get(self):
-        reminders = model.Reminder.get_and_update_current_reminders()
+        reminders = model.Reminder.get_current_reminders()
         if not reminders:
             logger.log("fiended")
         for reminder in reminders:
             sender.send_reminder(reminder.dest_userid,
                                  reminder.source_userid,
                                  reminder.text)
-
+        model.Reminder.update_current_reminders(reminders)
 class LogHandler(webapp2.RequestHandler):
     def get(self):
         if self.request.get('clear') == 'T':

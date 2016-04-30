@@ -20,14 +20,15 @@ class Reminder(ndb.Model):
         r.put()
 
     @classmethod
-    def get_and_update_current_reminders(cls):
+    def get_current_reminders(cls):
         now = datetime.datetime.utcnow()
         reminders = cls.query().filter(cls.reminder_time < now)
-        for reminder in reminders:
-            # TODO(karl): instead of deleting reminders we might want
-            # to renew them.
-            reminder.key.delete()
         return reminders
+
+    @classmethod
+    def update_current_reminders(cls, reminders):
+        for reminder in reminders:
+            reminder.key.delete()
 
 class Log(ndb.Model):
     log = ndb.StringProperty(indexed=False)

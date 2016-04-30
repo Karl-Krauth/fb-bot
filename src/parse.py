@@ -6,7 +6,7 @@ import re
 # Parses message string
 # returns the remindee, date and text of reminder
 def parse_text(j):
-    string = get_text(j)
+    string = get_message_text(j)
     if string is None:
         logger.log("Failed to get text.")
         return None
