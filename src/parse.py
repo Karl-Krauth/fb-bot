@@ -86,15 +86,3 @@ def parse_msg(j):
     else:
         print "no match!"
 """
-
-# returns JSON object ready to send to Messenger API
-def construct_json_message(recipient, text):
-    j = { 
-        "recipient":{ 
-            "id": recipient 
-        }, 
-        "message":{
-            "text": text
-        }
-    }
-    return json.dumps(j)

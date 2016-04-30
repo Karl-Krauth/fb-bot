@@ -31,18 +31,20 @@ class MainHandler(webapp2.RequestHandler):
  
     def post(self):
         logger.log(self.request.body)
-        sender = parse.get_source_user_id(self.request.body)
-        if sender is None:
-            # TODO: send an error response.
+        sender_id = parse.get_source_user_id(self.request.body)
+        if sender_id is None:
             logger.log("Invalid sender")
             return
         text_data = parse.parse_text(self.request.body)
         if text_data is None:
             # TODO: send an error response.
-            logger.log("invalid text data")
+            sender.send_chat_message(sender_id, "Oh no! I didn't understand your message.")
             return
-        model.Reminder.add_reminder(sender, text_data["remindee"],
+
+        model.Reminder.add_reminder(sender_id, text_data["remindee"],
                                     text_data["text"], text_data["date"])
+        sender.send_chat_message(sender_id, "Ok! I'll be sure to remind %d."
+                                 % text_data["remindee"])
 
 class CronHandler(webapp2.RequestHandler):
     def get(self):
@@ -63,7 +65,6 @@ class LogHandler(webapp2.RequestHandler):
         if self.request.get('clear') == 'T':
             logger.clear_log()
         if self.request.get('msg'):
-            logger.add_reminder(self.request.get('msg'))
             logger.log(self.request.get('msg'))
 
         self.response.write(logger.dump_log())
