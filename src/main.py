@@ -25,7 +25,7 @@ class MainHandler(webapp2.RequestHandler):
         else:
             self.response.write('Error, wrong validation token.')
 	def post(self):
-        logger.log(self.request.body)
+		logger.log(self.request.body)
 
 class DailyHandler(webapp2.RequestHandler):
     def get(self):
