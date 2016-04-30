@@ -56,12 +56,12 @@ class CronHandler(webapp2.RequestHandler):
                 logger.log("Failed to message %d" % reminder.dest_userid)
 
         model.Reminder.update_current_reminders(reminders)
+
 class LogHandler(webapp2.RequestHandler):
     def get(self):
         if self.request.get('clear') == 'T':
             logger.clear_log()
         if self.request.get('msg'):
-            logger.add_reminder(self.request.get('msg'))
             logger.log(self.request.get('msg'))
 
         self.response.write(logger.dump_log())
