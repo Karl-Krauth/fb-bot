@@ -28,6 +28,7 @@ class MainHandler(webapp2.RequestHandler):
     def post(self):
         logger.log(self.request.body)
 
+
 class DailyHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('aye bb girl let me clap dem cheeks') 
