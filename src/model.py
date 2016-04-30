@@ -13,13 +13,11 @@ class Reminder(ndb.Model):
 
     @classmethod
     def add_reminder(cls, source_userid, dest_userid, text, reminder_time):
-    	r = cls(
-	        source_userid=source_userid,
+        r = cls(source_userid=source_userid,
 	        dest_userid=dest_userid,
 	        text=text,
-	        reminder_time=reminder_time,
-	        )
-	    r.put()
+	        reminder_time=reminder_time)
+        r.put()
 
 	@classmethod
     def get_and_update_current_reminders(cls):

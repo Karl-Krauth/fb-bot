@@ -3,7 +3,8 @@ from datetime import datetime
 
 # Parses message string
 # returns the remindee, date and text of reminder
-def parseText(string):
+def parse_text(j):
+    text = get_text(j)
     # "Remind <userid> on <23 May 2016 14:03> of <text>"
     p = re.compile(r'(?i)remind ([^ ]+) on (.+) of (.+)')
     m = p.match(string)
@@ -24,8 +25,8 @@ def parseText(string):
         print "no match!"
 
 # Takes in json from Messenger API
-# returns user ID of sendee
-def getUserId(j):
+# returns user ID of sender
+def get_sender_user_id(j):
     extracted = json.loads(j)
     try:
         userId = extracted["entry"][0]["messaging"][0]["sender"]["id"]
@@ -36,7 +37,7 @@ def getUserId(j):
 
 # Takes in json from Messenger API
 # returns body text of message
-def getText(j):
+def get_text(j):
     extracted = json.loads(j)
     try:
         text = extracted["entry"][0]["messaging"][0]["message"]["text"]
@@ -46,7 +47,7 @@ def getText(j):
         return text
 
 # returns JSON object ready to send to Messenger API
-def constructJsonMessage(recipient, text):
+def construct_json_message(recipient, text):
     j = { 
         "recipient":{ 
             "id": recipient 
