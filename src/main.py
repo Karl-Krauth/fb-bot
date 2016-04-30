@@ -34,26 +34,27 @@ class MainHandler(webapp2.RequestHandler):
 
         msg_data = parse.parse_msg(self.request.body)
         source_user_id = parse.get_source_user_id(self.request.body)
+        # if user not in database, add them in
+        if not model.Users.get_by_id(source_user_id):
+            source_user_info = sender.get_user_info(source_user_id)
+            model.Users.add_user(source_user_info["first_name"], source_user_info["last_name"], source_user_id)
+
         if msg_data is None:
             # TODO: send an error response.
             sender.send_chat_message(source_user_id, "Oh no! I didn't understand your message.")
             return
 
-        # if user not in database, add them in
-        if not model.Users.get_by_id(source_user_id):
-            source_user_info = sender.get_user_info(source_user_id)
-            model.Users.add_user(source_user_info["first_name"], source_user_info["last_name"], source_user_id)
-        
         # TODO handle invalid name
         # TODO handle multiple matches to name string
         dest_user_id = model.Users.find_by_name(msg_data[parse.INFO_DEST_FIRST_NAME], msg_data[parse.INFO_DEST_LAST_NAME])
         if not dest_user_id:
             sender.send_chat_message(source_user_id, "Oh no! The user first name doesn't exist.")
             return
+        dest_user_id = dest_user_id.user_id
 
         model.Reminder.add_reminder(source_user_id, dest_user_id,
                                     msg_data[parse.INFO_TEXT], msg_data[parse.INFO_TIME])
-        sender.send_chat_message(source_user_id, "Ok! I'll be sure to remind %s %s."
+        sender.send_chat_message(dest_user_id, "Ok! I'll be sure to remind %s %s."
                                  % (msg_data[parse.INFO_DEST_FIRST_NAME], msg_data[parse.INFO_DEST_LAST_NAME]) )
 
 class CronHandler(webapp2.RequestHandler):

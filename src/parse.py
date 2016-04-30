@@ -22,8 +22,8 @@ def parse_msg(j):
     if m:
         mg = m.groups()
         
-        info[INFO_DEST_FIRST_NAME] = mg[0].lower()
-        info[INFO_DEST_LAST_NAME] = mg[1].lower()
+        info[INFO_DEST_FIRST_NAME] = mg[0]
+        info[INFO_DEST_LAST_NAME] = mg[1]
         info[INFO_TEXT] = mg[3]
         info[INFO_SOURCE_USER_ID] = get_source_user_id(j)
         try:
