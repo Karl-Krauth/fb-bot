@@ -46,12 +46,15 @@ class MainHandler(webapp2.RequestHandler):
 class CronHandler(webapp2.RequestHandler):
     def get(self):
         reminders = model.Reminder.get_current_reminders()
-        if not reminders:
-            logger.log("fiended")
+
         for reminder in reminders:
-            sender.send_reminder(reminder.dest_userid,
-                                 reminder.source_userid,
-                                 reminder.text)
+            try:
+                sender.send_reminder(reminder.dest_userid,
+                                     reminder.source_userid,
+                                     reminder.text)
+            except:
+                logger.log("Failed to message %d" % reminder.dest_userid)
+
         model.Reminder.update_current_reminders(reminders)
 class LogHandler(webapp2.RequestHandler):
     def get(self):
