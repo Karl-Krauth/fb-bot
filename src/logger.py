@@ -1,4 +1,5 @@
 import model
+import parse
 
 def dump_log():
     log = model.Log.query().get()
@@ -21,3 +22,4 @@ def log(msg):
 
     log.log += msg + "<br>"
     log.put()
+
