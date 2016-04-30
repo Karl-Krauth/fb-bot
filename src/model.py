@@ -1,5 +1,4 @@
 import datetime
-
 from google.appengine.ext import ndb
 
 class Reminder(ndb.Model):
@@ -33,6 +32,24 @@ class Reminder(ndb.Model):
                 reminder.key.delete()
             else:
                 reminder.reminder_time + datetime.timedelta(days=reminder.recurring)
+
+class Users(ndb.Model):
+	first_name = ndb.StringProperty()
+	last_name = ndb.StringProperty()
+	user_id = ndb.IntegerProperty()
+
+	@classmethod
+	def add_user(cls, first_name, last_name, id):
+		u = cls(first_name=first_name,
+			last_name=last_name,
+			user_id=id)
+		u.put()
+
+	@classmethod
+	# TODO regex match with last name too?
+	def find_id(cls, first_name, last_name):
+		return cls.query().get(cls.first_name == first_name)
+
 
 class Log(ndb.Model):
     log = ndb.StringProperty(indexed=False)

@@ -20,6 +20,7 @@ import logger
 import model
 import sender
 import parse
+import credentials
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -56,7 +57,7 @@ class CronHandler(webapp2.RequestHandler):
                                      reminder.text)
             except:
                 logger.log("Failed to message %d" % reminder.dest_userid)
-
+        #sender.send_reminder(938118842973491,938118842973491,"heydude")  
         model.Reminder.update_current_reminders(reminders)
 
 class LogHandler(webapp2.RequestHandler):
@@ -64,7 +65,6 @@ class LogHandler(webapp2.RequestHandler):
         if self.request.get('clear') == 'T':
             logger.clear_log()
         if self.request.get('msg'):
-            logger.add_reminder(self.request.get('msg'))
             logger.log(self.request.get('msg'))
 
         self.response.write(logger.dump_log())
