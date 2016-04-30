@@ -15,8 +15,12 @@
 # limitations under the License.
 #
 import webapp2
-
+from google.appengine.api import urlfetch
+import urllib
+import urllib2
 import logger
+import json
+import credentials
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -30,8 +34,8 @@ class MainHandler(webapp2.RequestHandler):
 
 
 class DailyHandler(webapp2.RequestHandler):
-    def get(self):
-        self.response.write('aye bb girl let me clap dem cheeks') 
+    def get(self): 
+        default_post_request()
 
 class LogHandler(webapp2.RequestHandler):
     def get(self):
@@ -41,6 +45,13 @@ class LogHandler(webapp2.RequestHandler):
             logger.log(self.request.get('msg'))
 
         self.response.write(logger.dump_log())
+        
+def default_post_request(): 
+    url="https://graph.facebook.com/v2.6/me/messages?access_token=" + credentials.access_token
+    data = json.dumps({"recipient":{"id":credentials.sender_id}, "message":{"text":credentials.message}})
+    req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
+    response = urllib2.urlopen(req)
+    print response.read()
 
 app = webapp2.WSGIApplication([
     ('/webhook', MainHandler),
@@ -50,3 +61,4 @@ app = webapp2.WSGIApplication([
 
 if __name__ == '__main__':
     run_wsgi_app(application)	
+
