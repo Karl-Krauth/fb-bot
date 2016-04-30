@@ -15,7 +15,12 @@ def get_user_info(id):
         print "Cannot get user info of user id %s" % id
 
 def send_reminder(dest_userid, source_userid, text):
-    logger.log("%d %d %s" % (source_userid, dest_userid, text))    
+    logger.log("%d %d %s" % (source_userid, dest_userid, text))
+    dest_first_name = model.Users.get_by_id(dest_userid)
+    if dest_first_name:
+        dest_first_name = dest_first_name.first_name
+    else:
+        dest_first_name = dest_userid
     url = ("https://graph.facebook.com/v2.6/me/messages?access_token=" +
            credentials.access_token)
     data = json.dumps({
@@ -27,7 +32,7 @@ def send_reminder(dest_userid, source_userid, text):
             "template_type":"generic",
             "elements":[
               {
-                "title":"Hi %d, you have a reminder!" % (dest_userid),
+                "title":"Hi %d, you have a reminder!" % (dest_first_name),
                 "image_url":"http://puu.sh/oB7DO/530537c5d2.png",
                 "subtitle":"%d would like to remind you that %s" % (source_userid, text),
               }
