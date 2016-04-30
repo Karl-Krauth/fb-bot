@@ -1,5 +1,6 @@
 import datetime
 from google.appengine.ext import ndb
+import logger
 
 class Reminder(ndb.Model):
     # Possible values include unique, daily, weekly, monthly.
@@ -14,9 +15,9 @@ class Reminder(ndb.Model):
     @classmethod
     def add_reminder(cls, source_userid, dest_userid, text, reminder_time):
         r = cls(source_userid=source_userid,
-	        dest_userid=dest_userid,
-	        text=text,
-	        reminder_time=reminder_time)
+            dest_userid=dest_userid,
+            text=text,
+            reminder_time=reminder_time)
         r.put()
 
     @classmethod
@@ -33,22 +34,27 @@ class Reminder(ndb.Model):
             else:
                 reminder.reminder_time + datetime.timedelta(days=reminder.recurring)
 
+# keeping a database of userid and their names
 class Users(ndb.Model):
-	first_name = ndb.StringProperty()
-	last_name = ndb.StringProperty()
-	user_id = ndb.IntegerProperty()
+    first_name = ndb.StringProperty()
+    last_name = ndb.StringProperty()
+    user_id = ndb.IntegerProperty()
 
-	@classmethod
-	def add_user(cls, first_name, last_name, id):
-		u = cls(first_name=first_name,
-			last_name=last_name,
-			user_id=id)
-		u.put()
+    @classmethod
+    def add_user(cls, first_name, last_name, id):
+        u = cls(first_name=first_name.lower(),
+            last_name=last_name.lower(),
+            user_id=id)
+        u.put()
 
-	@classmethod
-	# TODO regex match with last name too?
-	def find_id(cls, first_name, last_name):
-		return cls.query().get(cls.first_name == first_name)
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query().filter(cls.user_id == id).get()
+
+    @classmethod
+    def find_by_name(cls, first_name, last_name):
+        logger.log("%s %s" % (first_name, last_name))
+        return cls.query().filter(cls.first_name == first_name.lower() and cls.last_name==last_name.lower()).get()
 
 
 class Log(ndb.Model):

@@ -3,40 +3,37 @@ from datetime import datetime
 import logger
 import re
 
+INFO_SOURCE_USER_ID = "source_user_id"
+INFO_DEST_FIRST_NAME = "dest_first_name"
+INFO_DEST_LAST_NAME = "dest_last_name"
+INFO_TEXT = "text"
+INFO_TIME = "time"
+
 # Parses message string
 # returns the remindee, date and text of reminder
-def parse_text(j):
+def parse_msg(j):
     string = get_message_text(j)
-    if string is None:
-        logger.log("Failed to get text.")
-        return None
-    string = string.lower()
     # "Remind <userid> on <23 May 2016 14:03> of <text>"
-    p = re.compile(r'(?i)remind ([^ ]+) on (.+) of (.+)')
+    p = re.compile(r'(?i)remind ([^ ]+) ([^ ]+) on (.+) of (.+)')
     m = p.match(string)
 
     info = dict()
 
     if m:
         mg = m.groups()
+        
+        info[INFO_DEST_FIRST_NAME] = mg[0]
+        info[INFO_DEST_LAST_NAME] = mg[1]
+        info[INFO_TEXT] = mg[3]
+        info[INFO_SOURCE_USER_ID] = get_source_user_id(j)
         try:
-            info["date"] = datetime.strptime(mg[1], "%d %B %Y %H:%M") # <23 May 2016 14:03>
+            info[INFO_TIME] = datetime.strptime(mg[2], "%d %B %Y %H:%M") # <23 May 2016 14:03>
         except:
             # cannot parse date format so assume remind now
-            info["date"] = datetime.now()
-        info["remindee"] = int(mg[0])            
-        info["text"] = mg[2]
+            info[INFO_TIME] = datetime.datetime.now()
         return info
     else:
-        return None 
-"""
-=======
-INFO_SOURCE_USER_ID = "source_userid"
-INFO_DEST_USER_ID = "dest_userid"
-INFO_TEXT = "text"
-INFO_TIME = "time"
->>>>>>> ac4e472b424c373b2213d55d84eb62ec6401899c
-"""
+        print "no match!"
 
 # Takes in json from Messenger API
 # returns user ID of sender
@@ -59,30 +56,3 @@ def get_message_text(j):
         return None
 
     return text
-
-"""
-# Parses message string
-# returns the remindee, date and text of reminder
-def parse_msg(j):
-    string = get_message_text(j)
-    # "Remind <userid> on <23 May 2016 14:03> of <text>"
-    p = re.compile(r'(?i)remind ([^ ]+) on (.+) of (.+)')
-    m = p.match(string)
-
-    info = dict()
-
-    if m:
-        mg = m.groups()
-        
-        info[INFO_DEST_USER_ID] = mg[0]            
-        info[INFO_TEXT] = mg[2]
-        info[INFO_SOURCE_USER_ID] = get_source_user_id(j)
-        try:
-            info[INFO_TIME] = datetime.strptime(mg[1], "%d %B %Y %H:%M") # <23 May 2016 14:03>
-        except:
-            # cannot parse date format so assume remind now
-            info[INFO_TIME] = datetime.datetime.now()
-        return info
-    else:
-        print "no match!"
-"""

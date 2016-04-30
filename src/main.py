@@ -31,25 +31,35 @@ class MainHandler(webapp2.RequestHandler):
  
     def post(self):
         logger.log(self.request.body)
-        sender_id = parse.get_source_user_id(self.request.body)
-        if sender_id is None:
-            logger.log("Invalid sender")
-            return
-        text_data = parse.parse_text(self.request.body)
-        if text_data is None:
+
+        msg_data = parse.parse_msg(self.request.body)
+        source_user_id = parse.get_source_user_id(self.request.body)
+        # if user not in database, add them in
+        if not model.Users.get_by_id(source_user_id):
+            source_user_info = sender.get_user_info(source_user_id)
+            model.Users.add_user(source_user_info["first_name"], source_user_info["last_name"], source_user_id)
+
+        if msg_data is None:
             # TODO: send an error response.
-            sender.send_chat_message(sender_id, "Oh no! I didn't understand your message.")
+            sender.send_chat_message(source_user_id, "Oh no! I didn't understand your message.")
             return
 
-        model.Reminder.add_reminder(sender_id, text_data["remindee"],
-                                    text_data["text"], text_data["date"])
-        sender.send_chat_message(sender_id, "Ok! I'll be sure to remind %d."
-                                 % text_data["remindee"])
+        # TODO handle invalid name
+        # TODO handle multiple matches to name string
+        dest_user_id = model.Users.find_by_name(msg_data[parse.INFO_DEST_FIRST_NAME], msg_data[parse.INFO_DEST_LAST_NAME])
+        if not dest_user_id:
+            sender.send_chat_message(source_user_id, "Oh no! The user first name doesn't exist.")
+            return
+        dest_user_id = dest_user_id.user_id
+
+        model.Reminder.add_reminder(source_user_id, dest_user_id,
+                                    msg_data[parse.INFO_TEXT], msg_data[parse.INFO_TIME])
+        sender.send_chat_message(source_user_id, "Ok! I'll be sure to remind %s %s."
+                                 % (msg_data[parse.INFO_DEST_FIRST_NAME], msg_data[parse.INFO_DEST_LAST_NAME]) )
 
 class CronHandler(webapp2.RequestHandler):
     def get(self):
         reminders = model.Reminder.get_current_reminders()
-
         for reminder in reminders:
             try:
                 sender.send_reminder(reminder.dest_userid,
@@ -76,5 +86,5 @@ app = webapp2.WSGIApplication([
 ], debug=True)
 
 if __name__ == '__main__':
-    run_wsgi_app(application)	
+    run_wsgi_app(application)   
 
