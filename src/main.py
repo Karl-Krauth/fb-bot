@@ -21,6 +21,7 @@ import model
 import sender
 import parse
 import credentials
+import welcome
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -59,6 +60,7 @@ class MainHandler(webapp2.RequestHandler):
 
 class CronHandler(webapp2.RequestHandler):
     def get(self):
+        welcome.run_welcome_message()
         reminders = model.Reminder.get_current_reminders()
         for reminder in reminders:
             try:
