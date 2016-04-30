@@ -1,7 +1,8 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import logger
 import re
+import model
 
 INFO_SOURCE_USER_ID = "source_user_id"
 INFO_DEST_FIRST_NAME = "dest_first_name"
@@ -57,3 +58,30 @@ def get_message_text(j):
         return None
 
     return text
+
+def parse_group_message(source_id, text):
+    split_txt = text.split(" ", 6)
+    group_name = split_txt[1].lower()
+    num = int(split_txt[3])
+    msg = split_txt[6]
+
+    g = model.Group.query().filter(model.Group.group_name == group_name).get()
+    if g is None:
+        g = Group(group_name=group_name)
+        g.put()
+
+    r = model.Reminder(reminder_time=datetime.utcnow() + timedelta(minutes=num), text=msg, source_userid=source_id, group_name=group_name)
+    r.put() 
+
+def parse_subscribe(source_id, text):
+    split_txt = text.split()
+    group_name = split_txt[2].lower()
+    
+    g = model.Group.query().filter(model.Group.group_name == group_name).get()
+    if g is None:
+        g = model.Group(group_name=group_name)
+    
+    if not source_id in g.subscribers:
+        g.subscribers.append(source_id)
+
+    g.put()

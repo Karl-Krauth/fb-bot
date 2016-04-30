@@ -31,13 +31,24 @@ class MainHandler(webapp2.RequestHandler):
  
     def post(self):
         logger.log(self.request.body)
-
-        msg_data = parse.parse_msg(self.request.body)
         source_user_id = parse.get_source_user_id(self.request.body)
         # if user not in database, add them in
         if not model.Users.get_by_id(source_user_id):
             source_user_info = sender.get_user_info(source_user_id)
             model.Users.add_user(source_user_info["first_name"], source_user_info["last_name"], source_user_id)
+
+        txt = parse.get_message_text(self.request.body)
+        txt_type = txt.split()[0].lower()
+        if txt_type == "update":
+            parse.parse_group_message(source_user_id, txt)
+            sender.send_chat_message(source_user_id, "Ok! I'll make sure to send the group a reminder!")
+            return
+        elif txt_type == "subscribe":
+            parse.parse_subscribe(source_user_id, txt)
+            sender.send_chat_message(source_user_id, "Ok! I've subscribed you to the group!")
+            return
+
+        msg_data = parse.parse_msg(self.request.body)
 
         if msg_data is None:
             # TODO: send an error response.
@@ -62,6 +73,7 @@ class CronHandler(webapp2.RequestHandler):
         reminders = model.Reminder.get_current_reminders()
         for reminder in reminders:
             sender.send_reminder(reminder.dest_userid,
+                                 reminder.group_name,
                                  reminder.source_userid,
                                  reminder.text)
         #sender.send_reminder(938118842973491,938118842973491,"heydude")  

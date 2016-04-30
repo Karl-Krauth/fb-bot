@@ -15,8 +15,15 @@ def get_user_info(id):
     else:
         print "Cannot get user info of user id %s" % id
 
-def send_reminder(dest_userid, source_userid, text):
-    logger.log("%d %d %s" % (source_userid, dest_userid, text))
+def send_reminder(dest_userid, group_name, source_userid, text):
+    if group_name != "":
+        g = model.Group.query().filter(group_name == model.Group.group_name).get()
+        if g is None:
+            return None
+        for sub in g.subscribers:
+            send_reminder(sub, "", source_userid, text)
+        return
+
     dest_user = model.Users.get_by_id(dest_userid)
     if dest_user is None:
         return None

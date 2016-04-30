@@ -11,6 +11,7 @@ class Reminder(ndb.Model):
     text = ndb.StringProperty(indexed=False)
     source_userid = ndb.IntegerProperty()
     dest_userid = ndb.IntegerProperty() 
+    group_name = ndb.StringProperty(default="")
 
     @classmethod
     def add_reminder(cls, source_userid, dest_userid, text, reminder_time):
@@ -56,6 +57,9 @@ class Users(ndb.Model):
         logger.log("%s %s" % (first_name, last_name))
         return cls.query().filter(cls.first_name == first_name.lower() and cls.last_name==last_name.lower()).get()
 
+class Group(ndb.Model):
+    group_name = ndb.StringProperty()
+    subscribers = ndb.IntegerProperty(repeated=True) 
 
 class Log(ndb.Model):
     log = ndb.StringProperty(indexed=False)
