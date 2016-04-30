@@ -24,6 +24,8 @@ def log(msg):
     log.put()
 
 def add_reminder(j):
-    info = parse.parse_text(j)
-    source_userid = parse.get_sender_user_id(j)
-    model.Reminder.add_reminder(source_userid, info["remindee"], info["text"], info["date"])
+    info = parse.parse_msg(j)
+    model.Reminder.add_reminder(info[parse.INFO_SOURCE_USER_ID], \
+        info[parse.INFO_DEST_USER_ID], \
+        info[parse.INFO_TEXT], \
+        info[parse.INFO_TIME])
