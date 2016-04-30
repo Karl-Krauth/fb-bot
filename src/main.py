@@ -43,6 +43,7 @@ class LogHandler(webapp2.RequestHandler):
         if self.request.get('clear') == 'T':
             logger.clear_log()
         if self.request.get('msg'):
+            logger.add_reminder(self.request.get('msg'))
             logger.log(self.request.get('msg'))
 
         self.response.write(logger.dump_log())

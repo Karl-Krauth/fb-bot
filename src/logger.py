@@ -1,4 +1,5 @@
 import model
+import parse
 
 def dump_log():
     log = model.Log.query().get()
@@ -21,3 +22,8 @@ def log(msg):
 
     log.log += msg + "<br>"
     log.put()
+
+def add_reminder(j):
+    info = parse.parse_text(j)
+    source_userid = parse.get_sender_user_id(j)
+    model.Reminder.add_reminder(source_userid, info["remindee"], info["text"], info["date"])
