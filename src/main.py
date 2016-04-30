@@ -17,6 +17,7 @@
 import webapp2
 
 import logger
+import models
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -29,9 +30,9 @@ class MainHandler(webapp2.RequestHandler):
         logger.log(self.request.body)
 
 
-class DailyHandler(webapp2.RequestHandler):
+class CronHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('aye bb girl let me clap dem cheeks') 
+        logger.log(models.Reminders.get_and_update_current_reminders())
 
 class LogHandler(webapp2.RequestHandler):
     def get(self):
@@ -45,7 +46,7 @@ class LogHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/webhook', MainHandler),
     ('/log', LogHandler),
-    ('/daily', DailyHandler),
+    ('/cron', CronHandler),
 ], debug=True)
 
 if __name__ == '__main__':
